@@ -87,6 +87,9 @@ Apache could not start because `/etc/httpd/conf/httpd.conf` contained an invalid
 Listen INVALID_PORT
 ```
 
+### Evidence — Root Cause
+
+![Invalid Apache Listen Port](screenshots/incident-001/04-root-cause-invalid-port.png)
 Apache requires a valid TCP port number for the `Listen` directive.
 
 ## Resolution
@@ -109,10 +112,6 @@ to:
 Listen 80
 ```
 
-### Evidence — Root Cause
-
-![Invalid Apache Listen Port](screenshots/incident-001/04-root-cause-invalid-port.png)
-
 Before restarting the service, the configuration was validated:
 
 ```bash
@@ -124,6 +123,9 @@ Result:
 ```text
 Syntax OK
 ```
+### Evidence — HTTP Service Verification
+
+![HTTP 200 OK Verification](screenshots/incident-001/07-http-200-ok-verification.png)
 
 Apache was then restarted:
 
@@ -161,6 +163,9 @@ HTTP/1.1 200 OK
 
 After service restoration, the monitoring system automatically detected the recovery.
 
+### Evidence — Monitoring Recovery
+
+![Monitoring Problem Resolved](screenshots/incident-001/08-monitoring-problem-resolved.png)
 Zabbix/Zammad reported:
 
 ```text
