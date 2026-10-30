@@ -1,87 +1,190 @@
 # Incident 001 — Apache HTTPD Configuration Error
 
+## Overview
+
+A monitoring alert reported that the Apache HTTP service (`httpd`) was unavailable on `server01`.
+
+The incident was detected automatically by Zabbix and generated a High-severity alert.
+
 ## Environment
 
-- Personal VirtualBox lab
-- Host: server01
-- Operating system: CentOS Stream 10
-- Service: Apache HTTPD
-- Monitoring and ticketing: Zabbix and Zammad
+* **Operating System:** CentOS Stream
+* **Server:** server01
+* **Service:** Apache HTTP Server (`httpd`)
+* **Monitoring:** Zabbix
+* **Ticketing:** Zammad
+* **Web Server:** Apache 2.4
 
-## Problem and Impact
+## Detection
 
-During a simulated incident, Apache HTTPD failed to start. The web service hosted on the lab server was unavailable.
+Zabbix detected that the HTTPD process was no longer running.
+
+**Alert:**
+
+* Problem: `HTTPD service is DOWN on server01`
+* Severity: High
+* Operational data: `0`
+
+The monitoring system generated an incident notification automatically.
 
 ## Investigation
 
-I checked the service state and reviewed its logs:
+The HTTPD service status was checked:
 
 ```bash
-systemctl status httpd
-journalctl -xeu httpd
+systemctl status httpd --no-pager
 ```
 
-I then validated the Apache configuration:
+The service was in a failed state:
+
+```text
+Active: failed (Result: exit-code)
+status=1/FAILURE
+```
+
+Apache configuration validation was then performed:
 
 ```bash
 apachectl configtest
 ```
 
-The configuration test identified a syntax error involving `INVALID_PORT` in the Apache configuration.
+The validation returned:
 
-## Root Cause
+```text
+AH00526: Syntax error on line 356 of /etc/httpd/conf/httpd.conf:
+Port must be specified
+```
 
-The Listen directive contained an invalid port value:
+The affected section of the configuration file was inspected:
 
-```apache
+```bash
+nl -ba /etc/httpd/conf/httpd.conf | sed -n '350,360p'
+```
+
+Line 356 contained:
+
+```text
 Listen INVALID_PORT
 ```
 
-This configuration error prevented Apache from starting.
+## Root Cause
+
+Apache could not start because `/etc/httpd/conf/httpd.conf` contained an invalid `Listen` directive:
+
+```text
+Listen INVALID_PORT
+```
+
+Apache requires a valid TCP port number for the `Listen` directive.
 
 ## Resolution
 
-I replaced the invalid directive with:
+The Apache configuration file was edited:
 
-```apache
+```bash
+vi /etc/httpd/conf/httpd.conf
+```
+
+The invalid directive was changed from:
+
+```text
+Listen INVALID_PORT
+```
+
+to:
+
+```text
 Listen 80
 ```
 
-I validated the configuration before restarting the service:
+Before restarting the service, the configuration was validated:
 
 ```bash
 apachectl configtest
+```
+
+Result:
+
+```text
+Syntax OK
+```
+
+Apache was then restarted:
+
+```bash
 systemctl restart httpd
 ```
 
-The configuration test returned `Syntax OK`.
-
 ## Verification
 
-I checked the service and tested its local HTTP response:
+The service status was verified:
 
 ```bash
-systemctl status httpd
+systemctl status httpd --no-pager
+```
+
+Result:
+
+```text
+Active: active (running)
+```
+
+HTTP functionality was independently verified:
+
+```bash
 curl -I http://localhost
 ```
 
-Apache restarted successfully, and the local HTTP check confirmed that the service responded.
+Result:
 
-For network access, I also allowed TCP port 80 through the lab firewall:
-
-```bash
-firewall-cmd --permanent --add-port=80/tcp
-firewall-cmd --reload
+```text
+HTTP/1.1 200 OK
 ```
-
-The firewall configuration supported remote access; it was separate from the syntax error that caused the startup failure.
 
 ## Monitoring Verification
 
-Service recovery was checked through the lab monitoring and ticketing workflow using Zabbix and Zammad.
+After service restoration, the monitoring system automatically detected the recovery.
 
-## Lessons Learned
+Zabbix/Zammad reported:
 
-- Service logs and configuration validation help identify startup failures.
-- Validate Apache configuration before restarting the service.
-- Check service health, HTTP responses, and monitoring after applying a fix.
+```text
+Problem has been resolved
+```
+
+The original High-severity HTTPD incident was successfully closed.
+
+## Incident Workflow
+
+```text
+Zabbix Alert
+     ↓
+HTTPD service failure confirmed
+     ↓
+Apache configuration tested
+     ↓
+Syntax error identified
+     ↓
+Invalid Listen directive located
+     ↓
+Configuration corrected
+     ↓
+Syntax validated
+     ↓
+HTTPD restarted
+     ↓
+HTTP 200 OK verified
+     ↓
+Monitoring recovery confirmed
+```
+
+## Skills Demonstrated
+
+* Linux service troubleshooting with systemd
+* Apache HTTP Server administration
+* Configuration validation with `apachectl`
+* Linux log and service-status analysis
+* HTTP service verification with `curl`
+* Zabbix monitoring
+* Incident-response methodology
+* Root cause analysis
+* Post-repair monitoring verification
