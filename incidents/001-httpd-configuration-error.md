@@ -27,6 +27,10 @@ Zabbix detected that the HTTPD process was no longer running.
 
 The monitoring system generated an incident notification automatically.
 
+### Evidence — Monitoring Alert
+
+![Zabbix HTTPD Down Alert](screenshots/incident-001/01-zabbix-httpd-down-alert.png)
+
 ## Investigation
 
 The HTTPD service status was checked:
@@ -42,6 +46,10 @@ Active: failed (Result: exit-code)
 status=1/FAILURE
 ```
 
+### Evidence — Service Failure
+
+![HTTPD Service Failed](screenshots/incident-001/02-httpd-service-failed.png)
+
 Apache configuration validation was then performed:
 
 ```bash
@@ -54,6 +62,10 @@ The validation returned:
 AH00526: Syntax error on line 356 of /etc/httpd/conf/httpd.conf:
 Port must be specified
 ```
+
+### Evidence — Apache Configuration Error
+
+![Apache Configtest Error](screenshots/incident-001/03-apache-configtest-error.png)
 
 The affected section of the configuration file was inspected:
 
@@ -96,6 +108,10 @@ to:
 ```text
 Listen 80
 ```
+
+### Evidence — Root Cause
+
+![Invalid Apache Listen Port](screenshots/incident-001/04-root-cause-invalid-port.png)
 
 Before restarting the service, the configuration was validated:
 
