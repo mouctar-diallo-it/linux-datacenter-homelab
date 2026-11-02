@@ -3,26 +3,34 @@
 
 ## Issue
 
-Zabbix detected abnormally high HTTP response time on `server01`.
-
-- Host: `server01.dclab.local`
-- Severity: Average
-- Zabbix Problem ID: 2865
-- Zammad Ticket ID: 101
-
 ## Detection
 
-Zabbix Web Monitoring generated the following alert:
+Zabbix detected abnormal HTTP response time on server01.
 
-`HTTP response time is too high on server01`
-
-The configured trigger detected an HTTP response time greater than 2 seconds.
-
-Zammad automatically generated a ticket for the incident.
+![Zabbix HTTP response time alert](screenshots/incident-003/01-http-response-time-alert.png)
 
 ## Investigation
 
-HTTP connectivity was first tested from the Zabbix server:
+HTTP response time was approximately 6 seconds.
 
-```bash
-curl -o /dev/null -s -w 'HTTP: %{http_code}\nTotal time: %{time_total}s\n' http://10.10.10.10
+![HTTP slow response](screenshots/incident-003/02-http-slow-response.png)
+
+Network testing showed approximately 3000 ms of latency.
+
+![Network high latency](screenshots/incident-003/03-network-high-latency.png)
+
+Traffic control inspection identified a 3-second netem delay.
+
+![Root cause - netem delay](screenshots/incident-003/04-root-cause-netem-delay.png)
+
+## Verification
+
+After removing the netem rule, HTTP response time returned to normal.
+
+![HTTP response restored](screenshots/incident-003/05-http-response-restored.png)
+
+## Monitoring Verification
+
+Zabbix automatically changed the incident from PROBLEM to RESOLVED.
+
+![Zabbix incident resolved](screenshots/incident-003/06-zabbix-incident-resolved.png)
