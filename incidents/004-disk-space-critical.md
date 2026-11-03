@@ -12,7 +12,7 @@ Zabbix detected critically low available disk space on the `/data/applications` 
 
 ## Detection
 
-Zabbix generated the following alert:
+![Zabbix critical disk space alert](screenshots/incident-004/01-zabbix-disk-space-alert.png)
 
 Linux: FS [/data/applications]: Space is critically low`
 
@@ -33,22 +33,22 @@ Size: 3.9G
 Used: 3.7G
 Available: 229M
 Use: 95%
-
+![Filesystem at 95 percent usage](screenshots/incident-004/02-disk-usage-critical.png)
 The largest files were then identified:
 find /data/applications -type f -exec du -h {} + | sort -hr | head -n 20
 
 A 3.5 GB file was identified:
 3.5G /data/applications/incident004-fill.dat
-
+![Disk space restored](screenshots/incident-004/04-disk-space-restored.png)
 The file was checked with lsof to determine whether it was actively opened by a process:
 lsof /data/applications/incident004-fill.dat
 
 No process was found actively using the file.
-Root Cause
+## Root Cause
 A 3.5 GB file named incident004-fill.dat consumed most of the available space on the /data/applications filesystem.
-
+![Large file identified](screenshots/incident-004/03-largest-file-identified.png)
 This caused filesystem utilization to increase to approximately 95%, triggering the Zabbix alert.
-Resolution
+## Resolution
 After confirming the file was the source of the disk-space problem and was not actively being used, it was removed:
 rm /data/applications/incident004-fill.dat
 
@@ -61,9 +61,10 @@ Size: 3.9G
 Used: 108M
 Available: 3.8G
 Use: 3%
-
+![Disk space restored](screenshots/incident-004/04-disk-space-restored.png)
 The problematic file was also confirmed to no longer exist.
 Monitoring Verification
+![Monitoring incident resolved](screenshots/incident-004/05-monitoring-incident-resolved.png)
 Zabbix automatically detected the recovery and changed the incident status from:
 
 PROBLEM → RESOLVED
