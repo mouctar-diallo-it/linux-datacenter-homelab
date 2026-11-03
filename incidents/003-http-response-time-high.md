@@ -91,6 +91,3 @@ Zammad also received the automatic recovery notification.
 - Network emulation (netem)
 - Root cause analysis
 - Post-resolution verification
-
-
-Document Incident 003 HTTP latency troubleshooting
