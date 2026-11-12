@@ -51,6 +51,7 @@ systemctl start sshd
 
 ## Verification
 The service status was verified:
+
 systemctl is-active sshd
 
 Result:
