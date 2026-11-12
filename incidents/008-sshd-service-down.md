@@ -47,16 +47,17 @@ The sshd service had been stopped and was no longer listening on TCP port 22.
 The service terminated cleanly, and no SSH configuration error was detected.
 ## Resolution
 The SSH service was started:
+```bash
 systemctl start sshd
-
+```
 ## Verification
 The service status was verified:
-
+```bash
 systemctl is-active sshd
 
 Result:
 active
-
+```
 Port 22 was checked again:
 ss -lntp | grep ':22'
 ![SSHD port 22 restored](screenshots/incident-008/05-sshd-port-22-restored.png)
