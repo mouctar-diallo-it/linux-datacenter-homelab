@@ -38,9 +38,11 @@ Systemd was attempting to automatically restart the service.
 ![SSHD service failed](screenshots/incident-009/02-sshd-service-failed.png)
 
 The service logs were then investigated:
+```bash
 journalctl -u sshd -n 30 --no-pager
-```text
+```
 The logs identified a configuration error:
+```text
 /etc/ssh/sshd_config: line 133: Bad configuration option: InvalidDirective
 /etc/ssh/sshd_config: terminating, 1 bad configuration options
 ```
