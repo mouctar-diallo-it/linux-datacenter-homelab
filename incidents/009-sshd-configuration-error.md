@@ -30,7 +30,7 @@ The SSH service status was checked:
 systemctl status sshd --no-pager
 ```
 The service was unable to start successfully and returned:
-``bash
+```text
 status=255/EXCEPTION
 ```
 Systemd was attempting to automatically restart the service.
@@ -39,7 +39,7 @@ Systemd was attempting to automatically restart the service.
 
 The service logs were then investigated:
 journalctl -u sshd -n 30 --no-pager
-```bah
+```text
 The logs identified a configuration error:
 /etc/ssh/sshd_config: line 133: Bad configuration option: InvalidDirective
 /etc/ssh/sshd_config: terminating, 1 bad configuration options
